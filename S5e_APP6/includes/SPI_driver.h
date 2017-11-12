@@ -21,7 +21,8 @@
 
 
 // #include "something.h"
-
+#include "dsk6713.h"
+#include "dsk6713_aic23.h"
 /***************************************************************************
 	Set EXTERN macro :
 ***************************************************************************/
@@ -35,7 +36,7 @@
 /***************************************************************************
 	Constants declaration :
 ***************************************************************************/
-extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
+
 //#define something something_else
 
 /***************************************************************************
@@ -58,8 +59,12 @@ extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
 
 // Function description here ...
 EXTERN void SPI_init(void);
-
+void interrupt_init(void);
+void PutChar(int data);
+int ReadChar(void);
 // ajoutez vos prototype de fonction ici
+
+
 
 #undef SPI_DRIVER_MODULE_IMPORT
 

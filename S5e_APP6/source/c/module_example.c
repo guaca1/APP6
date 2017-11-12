@@ -26,6 +26,7 @@
 ****************************************************************************/
 
 extern far void vectors();  // Vecteurs d'interruption
+extern char FLAG_LECTURE;
 
 
 /****************************************************************************
@@ -109,7 +110,7 @@ void myModule_function2(void)
 
 interrupt void EXT_INT4(void)
 {
-    FLAG_LECTURE = FALSE;
+    FLAG_LECTURE = false;
     return;
 }
 
