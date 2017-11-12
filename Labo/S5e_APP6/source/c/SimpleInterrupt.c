@@ -1,3 +1,25 @@
+<<<<<<< HEAD
+#include "SimpleInterrupt.h"
+
+void main()
+{
+    extern far void Vectors();
+    init_ext_intr();
+
+    c_int04();
+
+}
+
+void init_ext_intr(void)
+{
+
+}
+
+void c_int04(void)
+{
+
+}
+=======
 #include "SimpleInterrupt.h"
 #include "csl.h"
 #include "csl_gpio.h"
@@ -52,3 +74,4 @@ interrupt void c_int04()
 {
     flagInterrupt = 1;
 }
+>>>>>>> 940608c27ce041bb34ad9ec8081f5e0f6cb93465

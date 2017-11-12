@@ -5,22 +5,22 @@
 SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
-ASM_SRCS += \
-../source/asm/Vectors.asm 
+C_SRCS += \
+../source/main.c 
+
+C_DEPS += \
+./source/main.d 
 
 OBJS += \
-./source/asm/Vectors.obj 
-
-ASM_DEPS += \
-./source/asm/Vectors.d 
+./source/main.obj 
 
 OBJS__QUOTED += \
-"source\asm\Vectors.obj" 
+"source\main.obj" 
 
-ASM_DEPS__QUOTED += \
-"source\asm\Vectors.d" 
+C_DEPS__QUOTED += \
+"source\main.d" 
 
-ASM_SRCS__QUOTED += \
-"../source/asm/Vectors.asm" 
+C_SRCS__QUOTED += \
+"../source/main.c" 
 
 
