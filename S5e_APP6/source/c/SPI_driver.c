@@ -29,7 +29,7 @@
 ***************************************************************************/
 
 #define SPI_DRIVER_MODULE_IMPORT
-#define SPI_WRITE_CONFIG 0xE040
+#define SPI_WRITE_CONFIG 0xE440
 /*
  * 1 = Write Configuration
  * 1 = Write Configuration
@@ -117,7 +117,7 @@ void SPI_init(void)
         PutChar(0x000F);
         DSK6713_waitusec(10);
         temp = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
-
+        DSK6713_waitusec(10);
         if(temp == SPI_WRITE_CONFIG)
             {
                 isReady = true;
@@ -168,9 +168,9 @@ void MCBSP_init()
                                        MCBSP_FMKS(XCR, XWDREVRS, DISABLE),
 
                                        MCBSP_FMKS(SRGR, GSYNC, DEFAULT)        |
-                                       MCBSP_FMKS(SRGR, CLKSP, DEFAULT)        |
+                                       MCBSP_FMKS(SRGR, CLKSP, FALLING)        |
                                        MCBSP_FMKS(SRGR, CLKSM, INTERNAL)        |
-                                       MCBSP_FMKS(SRGR, FSGM, DEFAULT)         |
+                                       MCBSP_FMKS(SRGR, FSGM, DEFAULT)         |//DXR to XSR
                                        MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
                                        MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
                                        MCBSP_FMKS(SRGR, CLKGDV, DEFAULT),
@@ -184,7 +184,7 @@ void MCBSP_init()
                                        MCBSP_FMKS(PCR, FSXM, INTERNAL)         |
                                        MCBSP_FMKS(PCR, FSRM, EXTERNAL)         |
                                        MCBSP_FMKS(PCR, CLKXM, OUTPUT)           |
-                                       MCBSP_FMKS(PCR, CLKRM, INPUT)           |
+                                       MCBSP_FMKS(PCR, CLKRM, OUTPUT)           |
                                        MCBSP_FMKS(PCR, CLKSSTAT, DEFAULT)      |
                                        MCBSP_FMKS(PCR, DXSTAT, DEFAULT)        |
                                        MCBSP_FMKS(PCR, FSXP, ACTIVELOW)       |
