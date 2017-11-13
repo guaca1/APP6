@@ -35,6 +35,8 @@
 #define MASK_GET_DIP2_BIT 0x00000040
 #define CNTL0  *(unsigned int *) DC_REG;
 
+MCBSP_Handle test_mscbp;
+
 char FLAG_LECTURE = false;
 char FLAG_RS232 = true;
 char FLAG_RS485 = false;

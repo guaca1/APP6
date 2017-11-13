@@ -16,6 +16,8 @@
 #include "C6713Helper_UdeS.h"
 #include "csl_irq.h"
 #include "SPI_driver.h"
+#include "dsk6713.h"
+
 
 
 /***************************************************************************
@@ -55,6 +57,7 @@
 
 extern far void vectors();   // Vecteurs d'interruption
 extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
+extern MCBSP_Handle test_mcbsp
 
 /****************************************************************************
 	Private macros and constants :
@@ -183,7 +186,9 @@ MCBSP_Config MCBSP0_SPI_Cfg = {
                                        MCBSP_FMKS(PCR, CLKXP, FALLING)         |
                                        MCBSP_FMKS(PCR, CLKRP, RISING)
                                    };
-    MCBSP_config(DSK6713_AIC23_CONTROLHANDLE,&MCBSP0_SPI_Cfg);
+    MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
+    MCBSP_open(MCBSP_DEV0, MCBSP_OPEN);
+    MCBSP_config(test_mcbspt,&MCBSP0_SPI_Cfg);
 }
 /****************************************************************************
 	ISR :
