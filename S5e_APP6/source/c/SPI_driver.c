@@ -1,5 +1,5 @@
 /********************************************************
-**  Session 5 - APP6 - Téléphonie par DSP
+**  Session 5 - APP6 - Tï¿½lï¿½phonie par DSP
 **  Fichier SPI_driver.c
 **  Auteurs : < vos noms >
 **  Date : < derniere modification >
@@ -7,7 +7,7 @@
 
 
 /***************************************************************************
-	Include headers :
+    Include headers :
 ***************************************************************************/
 
 //#include "something.h"
@@ -16,12 +16,16 @@
 #include "C6713Helper_UdeS.h"
 #include "csl_irq.h"
 #include "SPI_driver.h"
+
+
+#include "Audio_driver.h"
 #include "dsk6713.h"
 
 
 
+
 /***************************************************************************
-	Include Module Header :
+    Include Module Header :
 ***************************************************************************/
 
 #define SPI_DRIVER_MODULE_IMPORT
@@ -39,7 +43,7 @@
  * 1, Transmit two stop-bits
  * 0, Parity is disabled for both transmit and receive
  * 0, 8-bit words
- * B3–B0 = XXXX, Baud-Rate Divisor Select Bits = 230.4kBaud
+ * B3ï¿½B0 = XXXX, Baud-Rate Divisor Select Bits = 230.4kBaud
  */
 #define SPI_READ_CONFIG 0x4000
 /*
@@ -52,15 +56,15 @@
 
 
 /****************************************************************************
-	Extern content declaration :
+    Extern content declaration :
 ****************************************************************************/
 
 extern far void vectors();   // Vecteurs d'interruption
 extern MCBSP_Handle DSK6713_AIC23_CONTROLHANDLE;
-extern MCBSP_Handle test_mcbsp
+extern MCBSP_Handle test_mcbsp;
 
 /****************************************************************************
-	Private macros and constants :
+    Private macros and constants :
 ****************************************************************************/
 
 // These defines are only valid is this .c
@@ -68,18 +72,18 @@ extern MCBSP_Handle test_mcbsp
 //#define something somethingelse
 
 /****************************************************************************
-	Private Types :
+    Private Types :
 ****************************************************************************/
 
 // These type declaration are only valid in this .c
 
 /****************************************************************************
-	Private global variables :
+    Private global variables :
 ****************************************************************************/
 
 
 /****************************************************************************
-	Private functions :
+    Private functions :
 ****************************************************************************/
 
 void PutChar(int data)
@@ -99,7 +103,7 @@ int ReadChar()
 // Use static keyword
 
 /****************************************************************************
-	Public functions :
+    Public functions :
 ****************************************************************************/
 
 // Function description here ...
@@ -110,6 +114,8 @@ void SPI_init(void)
     while(1)
     {
         MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPI_WRITE_CONFIG);
+        PutChar(0x000F);
+        DSK6713_waitusec(10);
         temp = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
 
         if(temp == SPI_WRITE_CONFIG)
@@ -122,7 +128,7 @@ void SPI_init(void)
     IRQ_clear(IRQ_EVT_EXTINT4);
     interrupt_init();
 
-	return;
+    return;
 }
 
 void MCBSP_init()
@@ -186,12 +192,23 @@ void MCBSP_init()
                                        MCBSP_FMKS(PCR, CLKXP, FALLING)         |
                                        MCBSP_FMKS(PCR, CLKRP, RISING)
                                    };
-    MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
-    MCBSP_open(MCBSP_DEV0, MCBSP_OPEN);
-    MCBSP_config(test_mcbspt,&MCBSP0_SPI_Cfg);
+//    MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
+//    test_mcbsp = MCBSP_open(MCBSP_DEV0, MCBSP_OPEN_RESET);
+
+    DSK6713_rset(DSK6713_MISC, (DSK6713_rget(DSK6713_MISC) |0x1));
+    MCBSP_reset(DSK6713_AIC23_CONTROLHANDLE);
+    MCBSP_config(DSK6713_AIC23_CONTROLHANDLE,&MCBSP0_SPI_Cfg);
+    MCBSP_start(DSK6713_AIC23_CONTROLHANDLE, MCBSP_XMIT_START|MCBSP_RCV_START|MCBSP_SRGR_START|MCBSP_SRGR_FRAMESYNC, 0x00003000);
+
+//    MCBSP_enableFsync(test_mcbsp);
+//    MCBSP_enableRcv(test_mcbsp);
+//    MCBSP_enableSrgr(test_mcbsp);
+//    MCBSP_enableXmt(test_mcbsp);
+
+
 }
 /****************************************************************************
-	ISR :
+    ISR :
 ****************************************************************************/
 void interrupt_init(void)
 {

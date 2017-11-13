@@ -35,7 +35,7 @@
 #define MASK_GET_DIP2_BIT 0x00000040
 #define CNTL0  *(unsigned int *) DC_REG;
 
-MCBSP_Handle test_mscbp;
+MCBSP_Handle test_mcbsp;
 
 char FLAG_LECTURE = false;
 char FLAG_RS232 = true;
@@ -81,6 +81,7 @@ extern far void vectors();   // Vecteurs d'interruption
 void main()
 {
 	// initialisation des modules et des périphériques
+    DSK6713_init();
     Audio_init();
 	myModule_init(); // initialisation du module exemple ; à enlever
 	MCBSP_init();

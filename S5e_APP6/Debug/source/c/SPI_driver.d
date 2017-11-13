@@ -29,6 +29,9 @@ source/c/SPI_driver.obj: C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/yvals.h
 source/c/SPI_driver.obj: C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stdarg.h
 source/c/SPI_driver.obj: C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/_lock.h
 source/c/SPI_driver.obj: C:/ti/dsk6713/include/dsk6713.h
+source/c/SPI_driver.obj: D:/Download/APP6/S5e_APP6/includes/Audio_driver.h
+source/c/SPI_driver.obj: C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stdio.h
+source/c/SPI_driver.obj: C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stddef.h
 
 ../source/c/SPI_driver.c: 
 C:/ti/ccsv7/ccs_base/C6xCSL/include/csl_mcbsp.h: 
@@ -59,3 +62,6 @@ C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/yvals.h:
 C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stdarg.h: 
 C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/_lock.h: 
 C:/ti/dsk6713/include/dsk6713.h: 
+D:/Download/APP6/S5e_APP6/includes/Audio_driver.h: 
+C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stdio.h: 
+C:/ti/ccsv7/tools/compiler/c6000_7.4.20/include/stddef.h: 
