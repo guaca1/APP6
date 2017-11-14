@@ -17,7 +17,6 @@ ORDERED_OBJS += \
 "./source/c/C6713Helper_UdeS.obj" \
 "./source/c/SPI_driver.obj" \
 "./source/c/Telephone.obj" \
-"./source/c/module_example.obj" \
 "../C6713dsk.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -167,8 +166,8 @@ S5e_APP6.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "source\asm\INT2ULAW.obj" "source\asm\ULAW2INT.obj" "source\asm\Vectors.obj" "source\c\Audio_driver.obj" "source\c\C6713Helper_UdeS.obj" "source\c\SPI_driver.obj" "source\c\Telephone.obj" "source\c\module_example.obj" 
-	-$(RM) "source\c\Audio_driver.d" "source\c\C6713Helper_UdeS.d" "source\c\SPI_driver.d" "source\c\Telephone.d" "source\c\module_example.d" 
+	-$(RM) "source\asm\INT2ULAW.obj" "source\asm\ULAW2INT.obj" "source\asm\Vectors.obj" "source\c\Audio_driver.obj" "source\c\C6713Helper_UdeS.obj" "source\c\SPI_driver.obj" "source\c\Telephone.obj" 
+	-$(RM) "source\c\Audio_driver.d" "source\c\C6713Helper_UdeS.d" "source\c\SPI_driver.d" "source\c\Telephone.d" 
 	-$(RM) "source\asm\INT2ULAW.d" "source\asm\ULAW2INT.d" "source\asm\Vectors.d" 
 	-@echo 'Finished clean'
 	-@echo ' '

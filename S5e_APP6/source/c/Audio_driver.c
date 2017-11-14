@@ -1,8 +1,8 @@
 /********************************************************
 **  Session 5 - APP6 - Téléphonie par DSP
-**  Fichier Audio_driver.c
-**  Auteurs : < vos noms >
-**  Date : < derniere modification >
+**  Fichier principal Telephone.c
+**  Auteurs : < LANF1601, DESK1902, SOUC2303, DUFD2703 >
+**  Date : < 13/11/17 >
 ********************************************************/
 
 /***************************************************************************
