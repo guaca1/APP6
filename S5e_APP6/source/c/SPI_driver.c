@@ -27,6 +27,7 @@
 /***************************************************************************
     Include Module Header :
 ***************************************************************************/
+#define EXTPOL (unsigned int*) 0x019C0008
 
 #define SPI_DRIVER_MODULE_IMPORT
 #define SPI_WRITE_CONFIG 0xE440
@@ -52,7 +53,7 @@
  */
 #define SPI_WRITE_DATA 0x8000
 #define SPI_READ_DATA 0x0000
-
+#define EXTPOL (unsigned int*) 0x019C0008
 
 
 /****************************************************************************
@@ -88,15 +89,18 @@ extern MCBSP_Handle test_mcbsp;
 
 void PutChar(int data)
 {
-    data = data & 0x000F;
+    data = data & 0x00FF;
     int temp = SPI_WRITE_DATA | data;
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, temp);
 }
 
 int ReadChar()
 {
+    while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE));
     MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPI_READ_DATA);
-    return MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
+    while(!MCBSP_rrdy(DSK6713_AIC23_CONTROLHANDLE));
+    int test = (MCBSP_read(DSK6713_AIC23_CONTROLHANDLE) & 0x00FF);
+    return test;
 
 }
 // these function can only be called by this .c
@@ -109,21 +113,26 @@ int ReadChar()
 // Function description here ...
 void SPI_init(void)
 {
-    int temp;
-    char isReady = false;
-    while(1)
-    {
-        MCBSP_write(DSK6713_AIC23_CONTROLHANDLE, SPI_WRITE_CONFIG);
-        PutChar(0x000F);
-        DSK6713_waitusec(10);
-        temp = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
-        DSK6713_waitusec(10);
-        if(temp == SPI_WRITE_CONFIG)
-            {
-                isReady = true;
-            }
+    DSK6713_rset(DSK6713_MISC,DSK6713_rget(DSK6713_MISC) | 0x1);
+    int data = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);
+    data = 0;
 
-    }
+ while((data & 0x3FFF)!=(SPI_WRITE_CONFIG & 0x3FFF))
+ {
+
+    while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE));
+    MCBSP_write(DSK6713_AIC23_CONTROLHANDLE,(int)SPI_WRITE_CONFIG);
+
+    while(!MCBSP_rrdy(DSK6713_AIC23_CONTROLHANDLE));
+    data = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);       //On devrait pouvoir valider notre config
+
+    while(!MCBSP_xrdy(DSK6713_AIC23_CONTROLHANDLE));
+    MCBSP_write(DSK6713_AIC23_CONTROLHANDLE,SPI_READ_CONFIG);
+
+    while(!MCBSP_rrdy(DSK6713_AIC23_CONTROLHANDLE));
+    data = MCBSP_read(DSK6713_AIC23_CONTROLHANDLE);       //On devrait pouvoir valider notre config
+
+ }
 
     IRQ_clear(IRQ_EVT_EXTINT4);
     interrupt_init();
@@ -131,79 +140,76 @@ void SPI_init(void)
     return;
 }
 
+
 void MCBSP_init()
 {
     MCBSP_Config MCBSP0_SPI_Cfg = {
-                                       MCBSP_FMKS(SPCR, FRST, YES)             |
-                                       MCBSP_FMKS(SPCR, GRST, YES)             |
-                                       MCBSP_FMKS(SPCR, XINTM, XRDY)           |
-                                       MCBSP_FMKS(SPCR, XSYNCERR, NO)          |
-                                       MCBSP_FMKS(SPCR, XRST, YES)             |
-                                       MCBSP_FMKS(SPCR, DLB, OFF)              |
-                                       MCBSP_FMKS(SPCR, RJUST, RZF)            |
-                                       MCBSP_FMKS(SPCR, CLKSTP, NODELAY)       |
-                                       MCBSP_FMKS(SPCR, DXENA, OFF)            |
-                                       MCBSP_FMKS(SPCR, RINTM, RRDY)           |
-                                       MCBSP_FMKS(SPCR, RSYNCERR, NO)          |
-                                       MCBSP_FMKS(SPCR, RRST, YES),
+                MCBSP_FMKS(SPCR, FREE, NO)              |
+                MCBSP_FMKS(SPCR, SOFT, NO)              |
+                MCBSP_FMKS(SPCR, FRST, OF(0))             |
+                MCBSP_FMKS(SPCR, GRST, OF(0))             |
+                MCBSP_FMKS(SPCR, XINTM, XRDY)           |
+                MCBSP_FMKS(SPCR, XSYNCERR, NO)          |
+                MCBSP_FMKS(SPCR, XRST, OF(0))              | //Mode reset si 1
+                MCBSP_FMKS(SPCR, DLB, OFF)              |
+                MCBSP_FMKS(SPCR, RJUST, RZF)            |
+                MCBSP_FMKS(SPCR, CLKSTP, DELAY)         | //MET LE EN COMMENTAIRE AU PIRE
+                MCBSP_FMKS(SPCR, DXENA, OFF)            |
+                MCBSP_FMKS(SPCR, RINTM, RRDY)           |
+                MCBSP_FMKS(SPCR, RSYNCERR, NO)          |
+                MCBSP_FMKS(SPCR, RRST, OF(0)),               //Mode reset si 1
 
-                                       MCBSP_FMKS(RCR, RPHASE, SINGLE)         |
-                                       MCBSP_FMKS(RCR, RFRLEN2, DEFAULT)       |
-                                       MCBSP_FMKS(RCR, RWDLEN2, 16BIT)       |
-                                       MCBSP_FMKS(RCR, RCOMPAND, MSB)          |
-                                       MCBSP_FMKS(RCR, RFIG, NO)               |
-                                       MCBSP_FMKS(RCR, RDATDLY, 1BIT)          |
-                                       MCBSP_FMKS(RCR, RFRLEN1, OF(0))         | // This changes to 1 FRAME
-                                       MCBSP_FMKS(RCR, RWDLEN1, 16BIT)         | // This changes to 16 bits per frame
-                                       MCBSP_FMKS(RCR, RWDREVRS, DISABLE),
+                MCBSP_FMKS(RCR, RPHASE, SINGLE)         |
+                MCBSP_FMKS(RCR, RFRLEN2, OF(0))       |
+                MCBSP_FMKS(RCR, RWDLEN2, 16BIT)       |
+                MCBSP_FMKS(RCR, RCOMPAND, MSB)          |
+                MCBSP_FMKS(RCR, RFIG, NO)               |
+                MCBSP_FMKS(RCR, RDATDLY, 1BIT)          | //* an XDATDLY value of 0 or 2 causes undefined operation and an RDATDLY value of 0 causes the received data to be shifted incorrectly.
+                MCBSP_FMKS(RCR, RFRLEN1, OF(0))         | // This changes to 1 FRAME
+                MCBSP_FMKS(RCR, RWDLEN1, 16BIT)         | //* This changes to 16 bits per frame
+                MCBSP_FMKS(RCR, RWDREVRS, DISABLE),
 
-                                       MCBSP_FMKS(XCR, XPHASE, SINGLE)         |
-                                       MCBSP_FMKS(XCR, XFRLEN2, DEFAULT)       |
-                                       MCBSP_FMKS(XCR, XWDLEN2, 16BIT)       |
-                                       MCBSP_FMKS(XCR, XCOMPAND, MSB)          |
-                                       MCBSP_FMKS(XCR, XFIG, NO)               |
-                                       MCBSP_FMKS(XCR, XDATDLY, 1BIT)          |
-                                       MCBSP_FMKS(XCR, XFRLEN1, OF(0))         | // This changes to 1 FRAME
-                                       MCBSP_FMKS(XCR, XWDLEN1, 16BIT)         | // This changes to 16 bits per frame
-                                       MCBSP_FMKS(XCR, XWDREVRS, DISABLE),
+                MCBSP_FMKS(XCR, XPHASE, SINGLE)         |
+                MCBSP_FMKS(XCR, XFRLEN2,OF(0))       |
+                MCBSP_FMKS(XCR, XWDLEN2, 16BIT)       |
+                MCBSP_FMKS(XCR, XCOMPAND, MSB)          |
+                MCBSP_FMKS(XCR, XFIG, NO)               |
+                MCBSP_FMKS(XCR, XDATDLY, 1BIT)          | //* an XDATDLY value of 0 or 2 causes undefined operation and an RDATDLY value of 0 causes the received data to be shifted incorrectly.
+                MCBSP_FMKS(XCR, XFRLEN1, OF(0))         | // This changes to 1 FRAME
+                MCBSP_FMKS(XCR, XWDLEN1, 16BIT)         | //* This changes to 16 bits per frame
+                MCBSP_FMKS(XCR, XWDREVRS, DISABLE),
 
-                                       MCBSP_FMKS(SRGR, GSYNC, DEFAULT)        |
-                                       MCBSP_FMKS(SRGR, CLKSP, FALLING)        |
-                                       MCBSP_FMKS(SRGR, CLKSM, INTERNAL)        |
-                                       MCBSP_FMKS(SRGR, FSGM, DEFAULT)         |//DXR to XSR
-                                       MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
-                                       MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
-                                       MCBSP_FMKS(SRGR, CLKGDV, DEFAULT),
+                MCBSP_FMKS(SRGR, GSYNC, DEFAULT)        |
+                MCBSP_FMKS(SRGR, CLKSP, DEFAULT)        |
+                MCBSP_FMKS(SRGR, CLKSM, DEFAULT)        | //*Default = CLKSM_INTERNAL.
+                MCBSP_FMKS(SRGR, FSGM, OF(0))           | // Default = 0, DXR-to-XSR transfer of each element generates the slave enable FSX (FSGM = 0 in SRGR).
+                MCBSP_FMKS(SRGR, FPER, DEFAULT)         |
+                MCBSP_FMKS(SRGR, FWID, DEFAULT)         |
+                MCBSP_FMKS(SRGR, CLKGDV, OF(27)),        // 225MHZ/2/28
 
-                                       MCBSP_MCR_DEFAULT,
-                                       MCBSP_RCER_DEFAULT,
-                                       MCBSP_XCER_DEFAULT,
+                MCBSP_MCR_DEFAULT,
+                MCBSP_RCER_DEFAULT,
+                MCBSP_XCER_DEFAULT,
 
-                                       MCBSP_FMKS(PCR, XIOEN, SP)              |
-                                       MCBSP_FMKS(PCR, RIOEN, SP)              |
-                                       MCBSP_FMKS(PCR, FSXM, INTERNAL)         |
-                                       MCBSP_FMKS(PCR, FSRM, EXTERNAL)         |
-                                       MCBSP_FMKS(PCR, CLKXM, OUTPUT)           |
-                                       MCBSP_FMKS(PCR, CLKRM, OUTPUT)           |
-                                       MCBSP_FMKS(PCR, CLKSSTAT, DEFAULT)      |
-                                       MCBSP_FMKS(PCR, DXSTAT, DEFAULT)        |
-                                       MCBSP_FMKS(PCR, FSXP, ACTIVELOW)       |
-                                       MCBSP_FMKS(PCR, FSRP, ACTIVEHIGH)       |
-                                       MCBSP_FMKS(PCR, CLKXP, FALLING)         |
-                                       MCBSP_FMKS(PCR, CLKRP, RISING)
-                                   };
-//    MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
-//    test_mcbsp = MCBSP_open(MCBSP_DEV0, MCBSP_OPEN_RESET);
+                MCBSP_FMKS(PCR, XIOEN, SP)              | //SP = DX, FSX, and CLKX pins are configured as serial port pins and do not function as general-purpose I/O pins.
+                MCBSP_FMKS(PCR, RIOEN, SP)              | //SP = DX, FSX, and CLKX pins are configured as serial port pins and do not function as general-purpose I/O pins.
+                MCBSP_FMKS(PCR, FSXM, OF(1))         | //*FSX should be configured as an output that can be connected to the slave enable(/SS) input on the slave device (FSXM = 1)
+                MCBSP_FMKS(PCR, FSRM, OF(1))         |
+                MCBSP_FMKS(PCR, CLKXM, OF(1))          | //*CLKX should be configured as an OUTPUT in master mode
+                MCBSP_FMKS(PCR, CLKRM, OF(1))           |
+                MCBSP_FMKS(PCR, CLKSSTAT, DEFAULT)      |
+                MCBSP_FMKS(PCR, DXSTAT, DEFAULT)        |
+                MCBSP_FMKS(PCR, FSXP, ACTIVELOW)        |
+                MCBSP_FMKS(PCR, FSRP, ACTIVEHIGH)       |
+                MCBSP_FMKS(PCR, CLKXP, RISING)         |
+                MCBSP_FMKS(PCR, CLKRP, FALLING)
+            };
 
-    DSK6713_rset(DSK6713_MISC, (DSK6713_rget(DSK6713_MISC) |0x1));
-    MCBSP_reset(DSK6713_AIC23_CONTROLHANDLE);
-    MCBSP_config(DSK6713_AIC23_CONTROLHANDLE,&MCBSP0_SPI_Cfg);
-    MCBSP_start(DSK6713_AIC23_CONTROLHANDLE, MCBSP_XMIT_START|MCBSP_RCV_START|MCBSP_SRGR_START|MCBSP_SRGR_FRAMESYNC, 0x00003000);
-
-//    MCBSP_enableFsync(test_mcbsp);
-//    MCBSP_enableRcv(test_mcbsp);
-//    MCBSP_enableSrgr(test_mcbsp);
-//    MCBSP_enableXmt(test_mcbsp);
+    MCBSP_close(DSK6713_AIC23_CONTROLHANDLE);
+    DSK6713_AIC23_CONTROLHANDLE=MCBSP_open(MCBSP_DEV0,MCBSP_OPEN_RESET);
+    MCBSP_config(DSK6713_AIC23_CONTROLHANDLE,&MCBSP0_SPI_Cfg);                    //interface 16 bits to MAX3111E
+    MCBSP_start(DSK6713_AIC23_CONTROLHANDLE, MCBSP_SRGR_START|MCBSP_XMIT_START|MCBSP_RCV_START|MCBSP_SRGR_FRAMESYNC, 0x3000); //START GRST
+    while(MCBSP_xempty(DSK6713_AIC23_CONTROLHANDLE));
 
 
 }
@@ -222,8 +228,12 @@ void interrupt_init(void)
     IRQ_map(IRQ_EVT_EXTINT4, 4);
     IRQ_reset(IRQ_EVT_EXTINT4);
     IRQ_enable(IRQ_EVT_EXTINT4);
+    *EXTPOL|= 0x1;
     IRQ_nmiEnable();
     IRQ_globalEnable();
+
+    output_sample(0);
+
 
     return;
 }

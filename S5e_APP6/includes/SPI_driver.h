@@ -58,10 +58,14 @@
 ***************************************************************************/
 
 // Function description here ...
-EXTERN void SPI_init(void);
+void SPI_init(void);
 void interrupt_init(void);
 void PutChar(int data);
 int ReadChar(void);
+void MCBSP_init(void);
+void write_AIC(int out_data);
+int test_input(int input);
+
 // ajoutez vos prototype de fonction ici
 
 

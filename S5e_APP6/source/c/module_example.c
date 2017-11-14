@@ -108,11 +108,7 @@ void myModule_function2(void)
 ****************************************************************************/
 
 
-interrupt void EXT_INT4(void)
-{
-    FLAG_LECTURE = false;
-    return;
-}
+
 
 
 // end of module_example.c

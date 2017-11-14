@@ -43,6 +43,17 @@ Uint16 inputsource=DSK6713_AIC23_INPUT_MIC; // selection de l'entrée
 #define DROIT  1 // Haut-parleur droit
 union {Uint32 uint; short channel[2];} AIC23_data; // Pour contenir les deux signaux
 
+extern char FLAG_LECTURE;
+extern char FLAG_ECRITURE;
+extern char FLAG_COMP;
+extern char FLAG_ENRG;
+
+extern short outputSample;
+
+unsigned char int2ulaw(short linear);
+int ulaw2int(unsigned char log);
+extern short enregistrement[160000];
+extern char FLAG_REJOUE;
 /****************************************************************************
 	Private Types :
 ****************************************************************************/
@@ -73,21 +84,65 @@ void Audio_init(void)
 	return;
 }
 
+int traiter_output(int output)
+{
 
+    if (!FLAG_COMP)
+    {
+        return (output << 8);
+    }
+    else
+    {
+        int test = (ulaw2int((unsigned char)output) << 2);
+        return (test);
+    }
+
+}
+
+
+int traiter_input(int input)
+{
+    int retVal;
+    if (!FLAG_COMP)
+    {
+        retVal =  (input >> 8);
+    }
+    else
+    {
+        retVal = (int2ulaw(((short)input)>>2));
+
+    }
+    return ((retVal>>1)<<1) + FLAG_ENRG;
+}
 /****************************************************************************
 	ISR :
 ****************************************************************************/
 
 interrupt void c_int11(void)
 {
+    int output = traiter_output(outputSample);
+    static int compteurRejouage = 0;
+    FLAG_LECTURE = true;
+    if(FLAG_REJOUE)
+    {
+        output_sample((output<<16)+traiter_output(enregistrement[compteurRejouage++]));
+        if(compteurRejouage >= 160000)
+        {
+            compteurRejouage = 0;
+            FLAG_REJOUE = false;
+        }
+    }
+    else
+    {
+        output_sample((output<<16)+output);
+    }
 
-    short sample = (short) input_sample();
+}
 
-    PutChar((int) sample);
-
-    output_sample(sample);         // Sortir les deux signaux sur HEADPHONE
-
-
+interrupt void c_int04(void)
+{
+    FLAG_ECRITURE = true;
+    return;
 }
 
 // end of Audio_driver.c

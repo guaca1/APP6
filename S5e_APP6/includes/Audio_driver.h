@@ -57,9 +57,12 @@
 ***************************************************************************/
 
 // Function description here ...
-EXTERN void Audio_init(void);
-
-// ajoutez vos prototype de fonction ici
+void Audio_init(void);
+int traiter_output(int output);
+int traiter_input(int input);
+interrupt void c_int11(void);
+interrupt void c_int04(void);
+// ajoutez vos prototype de fonct;ion ici
 
 #undef AUDIO_DRIVER_MODULE_IMPORT
 
