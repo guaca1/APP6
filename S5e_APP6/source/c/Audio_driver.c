@@ -52,7 +52,7 @@ extern short outputSample;
 
 unsigned char int2ulaw(short linear);
 int ulaw2int(unsigned char log);
-extern short enregistrement[160000];
+extern short enregistrement[SIZE_RECORD];
 extern char FLAG_REJOUE;
 /****************************************************************************
 	Private Types :

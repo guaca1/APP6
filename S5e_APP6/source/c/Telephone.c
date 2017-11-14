@@ -60,7 +60,7 @@ extern far void vectors();   // Vecteurs d'interruption
 short outputSample;
 
 #pragma DATA_SECTION(enregistrement, ".EXT_RAM")
-short enregistrement[160000];
+short enregistrement[SIZE_RECORD];
 int compteurENRG = 0;
 /****************************************************************************
 	Private Types :
@@ -100,7 +100,16 @@ void main()
 
 	//Initialisation des FLAGS selon les DIPS
 	FLAG_RS232 = !DSK6713_DIP_get(3);
-	FLAG_COMP != DSK6713_DIP_get(0);
+	FLAG_COMP = !DSK6713_DIP_get(0);
+    if(FLAG_COMP)
+    {
+        DSK6713_LED_on(0);
+    }
+    else
+    {
+        DSK6713_LED_off(0);
+    }
+
 
     // Boucle infinie
 	while(1)
@@ -119,7 +128,7 @@ void main()
 	        if(FLAG_ENRG)                                               //Si un enregistrement est demande
 	        {
 	            enregistrement[compteurENRG++] = outputSample;          //remplir le tableau present dans la RAM
-	            if(compteurENRG >= 160000)
+	            if(compteurENRG >= SIZE_RECORD)
 	            {
 	                compteurENRG = 0;
 	                FLAG_ENRG = false;                                  //UNe fois le tableau plein, reset le FLAG
@@ -136,24 +145,24 @@ void main()
 
 	        FLAG_LECTURE = false;                                       //Reset flag
 	    }
-        if (!DSK6713_DIP_get(3) && FLAG_RS232)                          //LED 3  = RS-232
+        if (!DSK6713_DIP_get(3) && FLAG_RS232)                          //LED 2  = RS-232
         {
             int temp = DSK6713_rget(DC_CNTL0);
             DSK6713_rset(DC_CNTL0, temp | 0x01);                        //set relay pour 232
 
             FLAG_RS232 = false;                                         //reset FLAG
-            DSK6713_LED_on(2);
-            DSK6713_LED_off(3);
+            DSK6713_LED_on(3);
+            DSK6713_LED_off(2);
 
 
         }
-        else if (DSK6713_DIP_get(3) && !FLAG_RS232)                     //LED 2 = RS 485
+        else if (DSK6713_DIP_get(3) && !FLAG_RS232)                     //LED 3 = RS 485
         {
             int temp = DSK6713_rget(DC_CNTL0);
             DSK6713_rset(DC_CNTL0, temp & 0xFFFE);                      //set relay pour rs-485
             FLAG_RS232 = true;
-            DSK6713_LED_on(3);
-            DSK6713_LED_off(2);
+            DSK6713_LED_on(2);
+            DSK6713_LED_off(3);
         }
 
         if(!FLAG_ENRG && !FLAG_REJOUE)                                  // Si on demande un enregistrement et il n'est pas en mode rejouer ni deja en enregistrement
@@ -168,7 +177,14 @@ void main()
         if (FLAG_COMP == DSK6713_DIP_get(0))                            //Mettre componding avec Dip 0
         {
             FLAG_COMP = !FLAG_COMP;
-            DSK6713_LED_toggle(0);
+            if(FLAG_COMP)
+            {
+                DSK6713_LED_on(0);
+            }
+            else
+            {
+                DSK6713_LED_off(0);
+            }
         }
 
 	}

@@ -30,7 +30,7 @@ DSK6713_AIC23_Config config = { \
 0x0000,  /* 5 DSK6713_AIC23_DIGPATH    Digital audio path control */     \
 0x0000,  /* 6 DSK6713_AIC23_POWERDOWN  Power down control */             \
 0x0043,  /* 7 DSK6713_AIC23_DIGIF      Digital audio interface format */ \
-0x0081,  /* 8 DSK6713_AIC23_SAMPLERATE Sample rate control */            \
+0x00D9,  /* 8 DSK6713_AIC23_SAMPLERATE Sample rate control */            \
 0x0001   /* 9 DSK6713_AIC23_DIGACT     Digital interface activation */   \
 };
 
